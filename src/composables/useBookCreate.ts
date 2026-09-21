@@ -3,9 +3,12 @@ import { useRouter } from 'vue-router'
 import { createBook } from '@/api/books'
 import type { AuthorShort } from '@/api/types'
 import { apiMessage } from '@/lib/apiMessage'
+import { useSubscriptions } from './useSubscriptions'
 
 export function useBookCreate() {
   const router = useRouter()
+
+  const { sendMessageToSubscribers } = useSubscriptions()
 
   const title = ref('')
   const year = ref<number | null>(null)
@@ -71,6 +74,8 @@ export function useBookCreate() {
         author_ids: authorIds,
         cover: cover.value,
       })
+
+      sendMessageToSubscribers(authorIds, title.value)
 
       await router.push({ name: 'book', params: { id: String(book.id) } })
     } catch (cause) {

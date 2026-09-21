@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useAuthor } from '@/composables/useAuthor';
-import {  NResult, NSpin } from 'naive-ui'
+import { useSession } from '@/composables/useSession';
+import { useSubscriptions } from '@/composables/useSubscriptions';
+import { NInput, NButton, NResult, NSpin } from 'naive-ui'
+import { ref } from 'vue';
 
 const {
   author,
@@ -8,6 +11,9 @@ const {
   notFound,
   error,
 } = useAuthor()
+const { username } = useSession()
+const { subscribe } = useSubscriptions()
+const phone = ref('')
 
 </script>
 
@@ -29,6 +35,23 @@ const {
       class="author"
     >
       <h1 class="title">{{ author.full_name }}</h1>
+      <div
+        v-if="!username"
+        class="subscribe"
+      >
+          <n-input
+            v-model:value="phone"
+            placeholder="Телефон"
+            style="max-width: 240px"
+          />
+          <n-button
+            type="primary"
+            size="small"
+            @click="subscribe(author.id, phone)"
+          >
+            Подписаться
+          </n-button>
+      </div>
       <ul class="books">
         <li
           v-for="book in author.books"
@@ -64,5 +87,12 @@ const {
 
 .books a {
   color: inherit;
+}
+
+.subscribe {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 </style>

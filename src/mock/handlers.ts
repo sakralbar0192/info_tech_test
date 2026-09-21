@@ -100,4 +100,7 @@ export const handlers = [
     }
     return fail(401, 'Неверные учётные данные')
   }),
+  http.post(`${API}/books`, () => {
+    return  ok(getCatalogBook(1))
+  }),
 ]
