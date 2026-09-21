@@ -1,9 +1,9 @@
 import { computed, ref, watch } from 'vue'
 import { listBooks } from '@/api/books'
 import type { AuthorShort, Book, Pagination } from '@/api/types'
-import { ApiError } from '@/api/errors'
 import { readQueryInt, readQueryString } from '@/lib/routeQuery'
 import { useRoute, useRouter, type LocationQueryRaw } from 'vue-router'
+import { apiMessage } from '@/lib/apiMessage'
 
 const PER_PAGE = 5
 
@@ -102,7 +102,7 @@ export function useBookList() {
     } catch (cause) {
       books.value = []
       pagination.value = null
-      error.value = cause instanceof ApiError ? cause.message : 'Не удалось загрузить книги'
+      error.value = apiMessage(cause, 'Не удалось загрузить книгу')
     } finally {
       loading.value = false
     }

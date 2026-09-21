@@ -1,11 +1,16 @@
-import type { AuthorListQuery, BookListQuery } from '@/api/types'
+import type { AuthorListQuery, BookListQuery, ErrorItem } from '@/api/types'
 import { http, HttpResponse } from 'msw'
-import { listCatalogAuthors, listCatalogBooks } from './db'
+import { getCatalogBook, listCatalogAuthors, listCatalogBooks } from './db'
 
 const API = '/api/v1'
 
 function ok<T>(data: T, status = 200) {
   return HttpResponse.json({ success: true, data }, { status })
+}
+
+function fail(status: number, errors: string | ErrorItem[]) {
+  const list = typeof errors === 'string' ? [{ field: '', message: errors }] : errors
+  return HttpResponse.json({ success: false, errors: list }, { status })
 }
 
 function readInt(raw: string | null): number | undefined {
@@ -14,6 +19,12 @@ function readInt(raw: string | null): number | undefined {
   }
   const n = Number(raw)
   return Number.isFinite(n) ? n : undefined
+}
+
+function readParamId(params: { id?: string | readonly string[] }): number | undefined {
+  const raw = Array.isArray(params.id) ? params.id[0] : params.id
+  const n = Number(raw)
+  return Number.isInteger(n) ? n : undefined
 }
 
 function bookQueryFromUrl(url: URL): BookListQuery {
@@ -42,5 +53,16 @@ export const handlers = [
   http.get(`${API}/authors`, ({ request }) => {
     const query = authorQueryFromUrl(new URL(request.url))
     return ok(listCatalogAuthors(query))
+  }),
+  http.get(`${API}/books/:id`, ({ params }) => {
+    const id = readParamId(params)
+    if (id === undefined) {
+      return fail(404, 'Книга не найдена')
+    }
+    const book = getCatalogBook(id)
+    if (!book) {
+      return fail(404, 'Книга не найдена')
+    }
+    return ok(book)
   }),
 ]

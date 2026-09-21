@@ -10,3 +10,11 @@ export async function listBooks(query: BookListQuery = {}): Promise<Paginated<Bo
   })
   return data
 }
+
+export async function getBook(id: number): Promise<Book> {
+  const book = await request<Book>({
+    method: 'GET',
+    path: `/books/${id}`,
+  })
+  return book
+}

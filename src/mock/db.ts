@@ -82,3 +82,9 @@ export function listCatalogAuthors(query: AuthorListQuery = {}): Paginated<Autho
     },
   }
 }
+
+export function getCatalogBook(id: number): Book | null {
+  const catalog = loadCatalog()
+  const book = catalog.books.find((item) => item.id === id)
+  return book ? toBook(book, catalog) : null
+}
