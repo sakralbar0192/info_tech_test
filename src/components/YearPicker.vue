@@ -39,7 +39,6 @@ const calendarStart = computed(() => yearToTimestamp(props.modelValue ?? FALLBAC
     v-model:value="timestamp"
     :style="{width: '140px'}"
     type="year"
-    clearable
     placeholder="Год"
     :default-calendar-start-time="calendarStart"
     :year-range="[YEAR_MIN, YEAR_MAX + 1]"

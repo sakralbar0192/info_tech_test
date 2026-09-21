@@ -58,7 +58,7 @@ export function listCatalogBooks(query: BookListQuery = {}): Paginated<Book> {
   }
 }
 
-export function listCatalogAuthors(query: AuthorListQuery = {}): AuthorShort[] {
+export function listCatalogAuthors(query: AuthorListQuery = {}): Paginated<AuthorShort> {
   const catalog = loadCatalog()
 
   const page = query.page && query.page >= 1 ? query.page : 1
@@ -67,6 +67,18 @@ export function listCatalogAuthors(query: AuthorListQuery = {}): AuthorShort[] {
   const filtered = needle
     ? catalog.authors.filter((author) => author.full_name.toLocaleLowerCase().includes(needle))
     : catalog.authors
+  const total = filtered.length
+  const totalPages = total === 0 ? 0 : Math.ceil(total / perPage)
   const start = (page - 1) * perPage
-  return filtered.slice(start, start + perPage)
+  const items = filtered.slice(start, start + perPage)
+
+  return {
+    items,
+    pagination: {
+      total,
+      page,
+      per_page: perPage,
+      total_pages: totalPages,
+    },
+  }
 }

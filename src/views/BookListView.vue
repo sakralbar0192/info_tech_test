@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { NCard, NEmpty, NResult, NSpin, NPagination } from 'naive-ui'
+import { computed } from 'vue'
+import { NCard, NEmpty, NInput, NPagination, NResult, NSpin } from 'naive-ui'
+import AuthorPicker from '@/components/AuthorPicker.vue'
+import YearPicker from '@/components/YearPicker.vue'
 import { useBookList } from '@/composables/useBookList'
-import { computed } from 'vue';
 
 const {
   books,
@@ -10,12 +12,40 @@ const {
   pagination,
   page,
   setPage,
+  search,
+  year,
+  selectedAuthors,
+  setSearch,
+  setYear,
+  setSelectedAuthors,
 } = useBookList()
 
 const showPagination = computed(() => (pagination.value?.total_pages ?? 0) > 1)
 </script>
 
 <template>
+  <div class="filters">
+    <n-input
+      class="filters__search"
+      :value="search"
+      placeholder="Название"
+      clearable
+      @update:value="setSearch"
+    />
+    <YearPicker
+      class="filters__year"
+      :model-value="year ?? null"
+      clearable
+      placeholder="Год"
+      @update:model-value="setYear"
+    />
+    <AuthorPicker
+      class="filters__author"
+      :model-value="selectedAuthors"
+      placeholder="Автор"
+      @update:model-value="setSelectedAuthors"
+    />
+  </div>
   <n-spin :show="loading">
     <n-result
       v-if="error"
@@ -59,7 +89,7 @@ const showPagination = computed(() => (pagination.value?.total_pages ?? 0) > 1)
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -78,5 +108,25 @@ const showPagination = computed(() => (pagination.value?.total_pages ?? 0) > 1)
   display: flex;
   justify-content: center;
   padding: 0 16px 16px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 16px 0;
+
+  &__search {
+    width: 260px;
+  }
+
+  &__year {
+    width: 120px;
+  }
+
+  &__author {
+    width: 260px;
+  }
 }
 </style>
