@@ -1,6 +1,6 @@
 import type { AuthorListQuery, BookListQuery, ErrorItem } from '@/api/types'
 import { http, HttpResponse } from 'msw'
-import { getCatalogBook, listCatalogAuthors, listCatalogBooks } from './db'
+import { getCatalogAuthor, getCatalogBook, listCatalogAuthors, listCatalogBooks } from './db'
 
 const API = '/api/v1'
 
@@ -50,10 +50,6 @@ export const handlers = [
     const query = bookQueryFromUrl(new URL(request.url))
     return ok(listCatalogBooks(query))
   }),
-  http.get(`${API}/authors`, ({ request }) => {
-    const query = authorQueryFromUrl(new URL(request.url))
-    return ok(listCatalogAuthors(query))
-  }),
   http.get(`${API}/books/:id`, ({ params }) => {
     const id = readParamId(params)
     if (id === undefined) {
@@ -64,5 +60,20 @@ export const handlers = [
       return fail(404, 'Книга не найдена')
     }
     return ok(book)
+  }),
+  http.get(`${API}/authors`, ({ request }) => {
+    const query = authorQueryFromUrl(new URL(request.url))
+    return ok(listCatalogAuthors(query))
+  }),
+  http.get(`${API}/authors/:id`, ({ params }) => {
+    const id = readParamId(params)
+    if (id === undefined) {
+      return fail(404, 'Автор не найден')
+    }
+    const author = getCatalogAuthor(id)
+    if (!author) {
+      return fail(404, 'Автор не найден')
+    }
+    return ok(author)
   }),
 ]

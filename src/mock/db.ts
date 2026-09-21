@@ -1,4 +1,4 @@
-import type { AuthorListQuery, AuthorShort, Book, BookListQuery, Paginated } from '@/api/types'
+import type { Author, AuthorListQuery, AuthorShort, Book, BookListQuery, Paginated } from '@/api/types'
 import { seedCatalog, type CatalogState, type SeededBook } from './seed'
 
 
@@ -87,4 +87,20 @@ export function getCatalogBook(id: number): Book | null {
   const catalog = loadCatalog()
   const book = catalog.books.find((item) => item.id === id)
   return book ? toBook(book, catalog) : null
+}
+
+export function getCatalogAuthor(id: number): Author | null {
+  const catalog = loadCatalog()
+  const author = catalog.authors.find((item) => item.id === id)
+  if (!author) {
+    return null
+  }
+  const books = catalog.books
+    .filter((book) => book.author_ids.includes(id))
+    .map((book) => ({ id: book.id, title: book.title, year: book.year }))
+  return {
+    id: author.id,
+    full_name: author.full_name,
+    books,
+  }
 }

@@ -16,6 +16,12 @@ export type Book = {
   authors: AuthorShort[]
 }
 
+export type BookShort = {
+  id: number
+  title: string
+  year: number
+}
+
 export type BookListQuery = {
   page?: number
   'per-page'?: number
@@ -25,6 +31,12 @@ export type BookListQuery = {
 }
 
 // Типы авторов
+
+export type Author = {
+  id: number
+  full_name: string
+  books: BookShort[]
+}
 
 export type AuthorShort = {
   id: number

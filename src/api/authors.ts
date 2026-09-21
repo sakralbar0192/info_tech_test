@@ -1,5 +1,5 @@
 import { request } from './http'
-import type { AuthorListQuery, AuthorShort, Paginated } from './types'
+import type { Author, AuthorListQuery, AuthorShort, Paginated } from './types'
 
 export function listAuthors(
   query: AuthorListQuery = {},
@@ -9,4 +9,12 @@ export function listAuthors(
     path: '/authors',
     query,
   })
+}
+
+export async function getAuthor(id: number): Promise<Author> {
+  const author = await request<Author>({
+    method: 'GET',
+    path: `/authors/${id}`,
+  })
+  return author
 }
