@@ -76,3 +76,22 @@ export type TopAuthorsReport = {
   year: number
   items: TopAuthor[]
 }
+
+
+// Типы для операций логина
+export type LoginRequest = {
+  username: string
+  password: string
+}
+
+export type AuthUser = {
+  id: number
+  username: string
+  role: string
+}
+
+export type LoginData = {
+  token: string
+  expires_at: string
+  user: AuthUser
+}

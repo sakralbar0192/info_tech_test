@@ -7,9 +7,20 @@ export type RequestOptions = {
   path: string
   method: 'GET' | 'POST'
   query?: Query
+  json?: unknown
 }
 
 const BASE_URL = '/api/v1'
+
+let authToken: string | null = null
+
+export function setAuthToken(token: string | null): void {
+  authToken = token
+}
+
+export function getAuthToken(): string | null {
+  return authToken
+}
 
 function buildUrl(options: Pick<RequestOptions, 'path' | 'query'>): string {
   const {path, query} = options
@@ -29,6 +40,21 @@ function buildUrl(options: Pick<RequestOptions, 'path' | 'query'>): string {
 
   const qs = params.toString()
   return qs ? `${url}?${qs}` : url
+}
+
+function buildRequestInit(options: Pick<RequestOptions, 'json' | 'method'>): RequestInit {
+  const {method, json} = options
+
+  const headers = new Headers()
+  headers.set('Content-Type', 'application/json')
+
+  const body = JSON.stringify(json)
+
+  return {
+    method,
+    body,
+    headers
+  }
 }
 
 function isApiErrorBody(body: unknown): body is { errors: ErrorItem[] } {
@@ -69,11 +95,10 @@ async function readResponse(response: Response): Promise<unknown> {
 }
 
 export async function request<T>(options: RequestOptions): Promise<T> {
-  const {method} = options
   let response: Response
 
   try {
-    response = await fetch(buildUrl(options), {method})
+    response = await fetch(buildUrl(options), buildRequestInit(options))
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Network error'
     throw new ApiError(0, [{ field: '', message }])

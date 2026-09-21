@@ -1,4 +1,23 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router'
+import { NButton } from 'naive-ui'
+import { useSession } from '@/composables/useSession'
+
+const route = useRoute()
+const router = useRouter()
+const { username, signOut } = useSession()
+
+function onSignOut(): void {
+  signOut()
+  if (!route.meta.auth) {
+    return
+  }
+  void router.replace({
+    name: 'login',
+    query: { redirect: route.fullPath },
+  })
+}
+</script>
 
 <template>
   <header class="header">
@@ -14,25 +33,29 @@
       </router-link>
     </nav>
     <div class="header__auth">
-      <template v-if="false">
-        <span>Имя пользователя</span>
-        <button >
-          Выйти
-        </button>
-        <router-link :to="{ name: 'book-create' }">
-          Добавить книгу
-        </router-link>
-        <router-link :to="{ name: 'author-create' }">
+        <template v-if="username">
+          <router-link :to="{ name: 'book-create' }">
+            Добавить книгу
+          </router-link>
+          <router-link :to="{ name: 'author-create' }">
           Добавить автора
         </router-link>
-      </template>
-      <router-link
-        v-else
-        :to="{ name: 'login' }"
-      >
-        Войти
-      </router-link>
-    </div>
+          <span>{{ username }}</span>
+          <n-button
+            quaternary
+            size="small"
+            @click="onSignOut"
+          >
+            Выйти
+          </n-button>
+        </template>
+        <router-link
+          v-else
+          :to="{ name: 'login' }"
+        >
+          Войти
+        </router-link>
+      </div>
   </header>
   <router-view />
 </template>

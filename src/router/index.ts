@@ -10,11 +10,11 @@ import BookView from '@/views/BookView.vue'
 import LoginView from '@/views/LoginView.vue'
 import ReportView from '@/views/ReportView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
+import { useSession } from '@/composables/useSession'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // По умолчанию редиректим на список книг
     {
       path: '/',
       redirect: '/books'
@@ -34,11 +34,13 @@ const router = createRouter({
       path: '/books/:id/edit',
       name: 'book-edit',
       component: BookEditView,
+      meta: { auth: true },
     },
     {
       path: '/books/new',
       name: 'book-create',
       component: BookCreateView,
+      meta: { auth: true },
     },
     // Роуты авторов
     {
@@ -55,11 +57,13 @@ const router = createRouter({
       path: '/authors/:id/edit',
       name: 'author-edit',
       component: AuthorEditView,
+      meta: { auth: true },
     },
     {
       path: '/authors/new',
       name: 'author-create',
       component: AuthorCreateView,
+      meta: { auth: true },
     },
     // Отчет
     {
@@ -80,6 +84,17 @@ const router = createRouter({
       component: NotFoundView,
     },
   ],
+})
+
+const { username } = useSession()
+
+router.beforeEach((to) => {
+  if (to.meta.auth && !username.value) {
+    return {
+      name: 'login',
+      query: { redirect: to.fullPath },
+    }
+  }
 })
 
 export default router

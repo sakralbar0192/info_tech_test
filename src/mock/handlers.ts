@@ -4,6 +4,9 @@ import { getCatalogAuthor, getCatalogBook, listCatalogAuthors, listCatalogBooks,
 
 const API = '/api/v1'
 
+const DEMO_USERNAME = 'user'
+const DEMO_PASSWORD = 'password'
+
 function ok<T>(data: T, status = 200) {
   return HttpResponse.json({ success: true, data }, { status })
 }
@@ -82,5 +85,19 @@ export const handlers = [
       return fail(400, 'Укажите год')
     }
     return ok(listTopAuthors(year))
+  }),
+  http.post(`${API}/auth/login`, async ({ request }) => {
+    const body = (await request.json()) as {
+      username?: unknown
+      password?: unknown
+    }
+    if (body.username === DEMO_USERNAME && body.password === DEMO_PASSWORD) {
+      return ok({
+        token: 'mock-user-token',
+        expires_at: '2099-01-01T00:00:00.000Z',
+        user: { id: 1, username: DEMO_USERNAME, role: 'user' },
+      })
+    }
+    return fail(401, 'Неверные учётные данные')
   }),
 ]
