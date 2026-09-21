@@ -1,10 +1,10 @@
 import { request } from './http'
-import type { AuthorListQuery, AuthorShort } from './types'
+import type { AuthorListQuery, AuthorShort, Paginated } from './types'
 
 export function listAuthors(
   query: AuthorListQuery = {},
-): Promise<AuthorShort[]> {
-  return request<AuthorShort[]>({
+): Promise<Paginated<AuthorShort>> {
+  return request<Paginated<AuthorShort>>({
     method: 'GET',
     path: '/authors',
     query,
