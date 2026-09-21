@@ -1,6 +1,6 @@
-import type { BookListQuery } from '@/api/types'
+import type { AuthorListQuery, BookListQuery } from '@/api/types'
 import { http, HttpResponse } from 'msw'
-import { listCatalogBooks } from './db'
+import { listCatalogAuthors, listCatalogBooks } from './db'
 
 const API = '/api/v1'
 
@@ -26,9 +26,21 @@ function bookQueryFromUrl(url: URL): BookListQuery {
   }
 }
 
+function authorQueryFromUrl(url: URL): AuthorListQuery {
+  return {
+    page: readInt(url.searchParams.get('page')),
+    'per-page': readInt(url.searchParams.get('per-page')),
+    search: url.searchParams.get('search') ?? undefined,
+  }
+}
+
 export const handlers = [
   http.get(`${API}/books`, ({ request }) => {
     const query = bookQueryFromUrl(new URL(request.url))
     return ok(listCatalogBooks(query))
+  }),
+  http.get(`${API}/authors`, ({ request }) => {
+    const query = authorQueryFromUrl(new URL(request.url))
+    return ok(listCatalogAuthors(query))
   }),
 ]

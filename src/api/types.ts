@@ -30,3 +30,9 @@ export type AuthorShort = {
   id: number
   full_name: string
 }
+
+export type AuthorListQuery = {
+  page?: number
+  'per-page'?: number
+  search?: string
+}
