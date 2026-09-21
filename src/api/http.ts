@@ -1,12 +1,35 @@
 import { ApiError } from './errors'
 import type { ErrorItem } from './types'
 
+type Query = Record<string, string | number | boolean | undefined | null>
+
 export type RequestOptions = {
   path: string
   method: 'GET' | 'POST'
+  query?: Query
 }
 
 const BASE_URL = '/api/v1'
+
+function buildUrl(options: Pick<RequestOptions, 'path' | 'query'>): string {
+  const {path, query} = options
+
+  const url = `${BASE_URL}${path}`
+
+  if (!query) {
+    return url
+  }
+
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(query)) {
+    if (value) {
+      params.set(key, String(value))
+    }
+  }
+
+  const qs = params.toString()
+  return qs ? `${url}?${qs}` : url
+}
 
 function isApiErrorBody(body: unknown): body is { errors: ErrorItem[] } {
   if (typeof body !== 'object' || body === null || !('errors' in body)) {
@@ -46,11 +69,11 @@ async function readResponse(response: Response): Promise<unknown> {
 }
 
 export async function request<T>(options: RequestOptions): Promise<T> {
-  const {method, path} = options
+  const {method} = options
   let response: Response
 
   try {
-    response = await fetch(`${BASE_URL}${path}`, { method })
+    response = await fetch(buildUrl(options), {method})
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Network error'
     throw new ApiError(0, [{ field: '', message }])
