@@ -36,3 +36,17 @@ export type AuthorListQuery = {
   'per-page'?: number
   search?: string
 }
+
+// Вспомогательные типы
+
+export type Pagination = {
+  total: number
+  page: number
+  per_page: number
+  total_pages: number
+}
+
+export type Paginated<T> = {
+  items: T[]
+  pagination: Pagination
+}

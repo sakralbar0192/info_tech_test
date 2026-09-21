@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { NCard, NEmpty, NResult, NSpin } from 'naive-ui'
+import { NCard, NEmpty, NResult, NSpin, NPagination } from 'naive-ui'
 import { useBookList } from '@/composables/useBookList'
+import { computed } from 'vue';
 
 const {
   books,
   loading,
   error,
+  pagination,
+  page,
+  setPage,
 } = useBookList()
+
+const showPagination = computed(() => (pagination.value?.total_pages ?? 0) > 1)
 </script>
 
 <template>
@@ -41,12 +47,22 @@ const {
       </router-link>
     </div>
   </n-spin>
+  <div
+    v-if="showPagination"
+    class="pager"
+  >
+    <n-pagination
+      :page="page"
+      :page-count="pagination?.total_pages ?? 1"
+      @update:page="setPage"
+    />
+  </div>
 </template>
 
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   padding: 16px;
 }
@@ -56,5 +72,11 @@ const {
   width: 100%;
   aspect-ratio: 2 / 3;
   object-fit: cover;
+}
+
+.pager {
+  display: flex;
+  justify-content: center;
+  padding: 0 16px 16px;
 }
 </style>

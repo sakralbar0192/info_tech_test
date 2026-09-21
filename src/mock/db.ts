@@ -1,4 +1,4 @@
-import type { AuthorListQuery, AuthorShort, Book, BookListQuery } from '@/api/types'
+import type { AuthorListQuery, AuthorShort, Book, BookListQuery, Paginated } from '@/api/types'
 import { seedCatalog, type CatalogState, type SeededBook } from './seed'
 
 
@@ -36,17 +36,26 @@ function toBook(book: SeededBook, catalog: CatalogState): Book {
   }
 }
 
-export function listCatalogBooks(query: BookListQuery = {}): Book[] {
+export function listCatalogBooks(query: BookListQuery = {}): Paginated<Book> {
   const catalog = loadCatalog()
 
   const page = query.page && query.page >= 1 ? query.page : 1
   const perPage = query['per-page'] && query['per-page'] >= 1 ? query['per-page'] : 20
   const filtered = catalog.books.filter((book) => matchesQuery(book, query))
-
+  const total = filtered.length
+  const totalPages = total === 0 ? 0 : Math.ceil(total / perPage)
   const start = (page - 1) * perPage
   const items = filtered.slice(start, start + perPage).map((book) => toBook(book, catalog))
 
-  return items
+  return {
+    items,
+    pagination: {
+      total,
+      page,
+      per_page: perPage,
+      total_pages: totalPages,
+    },
+  }
 }
 
 export function listCatalogAuthors(query: AuthorListQuery = {}): AuthorShort[] {
