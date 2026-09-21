@@ -1,6 +1,6 @@
 import type { AuthorListQuery, BookListQuery, ErrorItem } from '@/api/types'
 import { http, HttpResponse } from 'msw'
-import { getCatalogAuthor, getCatalogBook, listCatalogAuthors, listCatalogBooks } from './db'
+import { getCatalogAuthor, getCatalogBook, listCatalogAuthors, listCatalogBooks, listTopAuthors } from './db'
 
 const API = '/api/v1'
 
@@ -75,5 +75,12 @@ export const handlers = [
       return fail(404, 'Автор не найден')
     }
     return ok(author)
+  }),
+  http.get(`${API}/reports/top-authors`, ({ request }) => {
+    const year = readInt(new URL(request.url).searchParams.get('year'))
+    if (year === undefined || !Number.isInteger(year)) {
+      return fail(400, 'Укажите год')
+    }
+    return ok(listTopAuthors(year))
   }),
 ]

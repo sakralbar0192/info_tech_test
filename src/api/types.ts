@@ -62,3 +62,17 @@ export type Paginated<T> = {
   items: T[]
   pagination: Pagination
 }
+
+// Отчет
+
+export type TopAuthor = {
+  rank: number
+  author_id: number
+  full_name: string
+  books_count: number
+}
+
+export type TopAuthorsReport = {
+  year: number
+  items: TopAuthor[]
+}

@@ -1,4 +1,4 @@
-import type { Author, AuthorListQuery, AuthorShort, Book, BookListQuery, Paginated } from '@/api/types'
+import type { Author, AuthorListQuery, AuthorShort, Book, BookListQuery, Paginated, TopAuthorsReport } from '@/api/types'
 import { seedCatalog, type CatalogState, type SeededBook } from './seed'
 
 
@@ -103,4 +103,31 @@ export function getCatalogAuthor(id: number): Author | null {
     full_name: author.full_name,
     books,
   }
+}
+
+export function listTopAuthors(year: number): TopAuthorsReport {
+  const catalog = loadCatalog()
+  const counts = new Map<number, number>()
+
+  for (const book of catalog.books) {
+    if (book.year !== year) {
+      continue
+    }
+    for (const authorId of book.author_ids) {
+      counts.set(authorId, (counts.get(authorId) ?? 0) + 1)
+    }
+  }
+
+  const items = [...counts.entries()]
+    .flatMap(([authorId, booksCount]) => {
+      const author = catalog.authors.find((item) => item.id === authorId)
+      return author
+        ? [{ author_id: authorId, full_name: author.full_name, books_count: booksCount }]
+        : []
+    })
+    .sort((a, b) => b.books_count - a.books_count || a.author_id - b.author_id)
+    .slice(0, 10)
+    .map((item, index) => ({ rank: index + 1, ...item }))
+
+  return { year, items }
 }
