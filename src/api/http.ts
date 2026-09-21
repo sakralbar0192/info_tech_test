@@ -8,6 +8,7 @@ export type RequestOptions = {
   method: 'GET' | 'POST'
   query?: Query
   json?: unknown
+  form?: FormData
 }
 
 const BASE_URL = '/api/v1'
@@ -42,13 +43,22 @@ function buildUrl(options: Pick<RequestOptions, 'path' | 'query'>): string {
   return qs ? `${url}?${qs}` : url
 }
 
-function buildRequestInit(options: Pick<RequestOptions, 'json' | 'method'>): RequestInit {
-  const {method, json} = options
+function buildRequestInit(options: Pick<RequestOptions, 'json' | 'method' | 'form'>) {
+  const {method, json, form} = options
 
   const headers = new Headers()
-  headers.set('Content-Type', 'application/json')
+  if (authToken) {
+    headers.set('Authorization', `Bearer ${authToken}`)
+  }
 
-  const body = JSON.stringify(json)
+  let body: BodyInit | undefined
+
+  if (form) {
+    body = form
+  } else if (json !== undefined) {
+    headers.set('Content-Type', 'application/json')
+    body = JSON.stringify(json)
+  }
 
   return {
     method,

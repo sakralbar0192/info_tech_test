@@ -30,6 +30,15 @@ export type BookListQuery = {
   search?: string
 }
 
+export type BookForm = {
+  title: string
+  year: number
+  description?: string
+  isbn?: string
+  author_ids: number[]
+  cover: File
+}
+
 // Типы авторов
 
 export type Author = {
